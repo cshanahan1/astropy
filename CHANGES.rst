@@ -303,6 +303,7 @@ astropy.io.misc
 
 - Fix ASDF serialization of circular model inverses, and remove explicit calls
   to ``asdf.yamlutil`` functions that became unnecessary in asdf 2.6.0. [#10189]
+- Added serialization of input unit equivalencies for models. [#10198]
 
 astropy.io.fits
 ^^^^^^^^^^^^^^^

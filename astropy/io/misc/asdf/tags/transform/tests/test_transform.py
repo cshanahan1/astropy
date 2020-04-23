@@ -88,7 +88,7 @@ test_models = [
     astmodels.SmoothlyBrokenPowerLaw1D(amplitude=10., x_break=5.0, alpha_1=2.0, alpha_2=3.0, delta=0.5),
     custom_and_analytical_inverse()]
 
-
+# test math models
 math_models = []
 
 for kl in astmodels.math.__all__:
@@ -97,11 +97,42 @@ for kl in astmodels.math.__all__:
 
 test_models.extend(math_models)
 
+# test 'fixed' and 'bounds' model constraints
 test_models_with_constraints = [astmodels.Legendre2D(x_degree=1, y_degree=1,
                                 c0_0=1, c0_1=2, c1_0=3,
                                 fixed={'c1_0': True, 'c0_1': True},
                                 bounds={'c0_0': (-10, 10)})]
 test_models.extend(test_models_with_constraints)
+
+# test some models and compound models with some input unit equivalencies
+def models_with_input_eq():
+    # 1D model
+    m1 = astmodels.Shift(1*u.kg)
+    m1.input_units_equivalencies = {'x': u.mass_energy()}
+
+    # 2D model
+    m2 = astmodels.Const2D(10*u.Hz)
+    m2.input_units_equivalencies = {'x': u.dimensionless_angles(),
+                                    'y': u.dimensionless_angles()}
+
+    # model using equivalency that has args using units
+    m3 = astmodels.PowerLaw1D(amplitude=1*u.m, x_0=10*u.pix, alpha=7)
+    m3.input_units_equivalencies = {'x': u.equivalencies.pixel_scale(0.5*u.arcsec/u.pix)}
+
+    return[m1, m2, m3]
+
+
+def compound_models_with_input_eq():
+    m1 = astmodels.Gaussian1D(10*u.K, 11*u.arcsec, 12*u.arcsec)
+    m1.input_units_equivalencies = {'x': u.parallax()}
+    m2 = astmodels.Gaussian1D(5*u.s, 2*u.K, 3*u.K)
+    m2.input_units_equivalencies = {'x': u.temperature()}
+
+    return  [m1|m2]
+
+
+test_models.extend(models_with_input_eq())
+test_models.extend(compound_models_with_input_eq())
 
 def test_transforms_compound(tmpdir):
     tree = {
@@ -305,6 +336,7 @@ def test_fix_inputs(tmpdir):
             warnings.filterwarnings('ignore', 'Unable to locate schema file')
 
         model = astmodels.Pix2Sky_TAN() | astmodels.Rotation2D()
+        model[0].input_units_equivalencies = {'x': None, 'y': None} # temporary
         tree = {
             'compound': fix_inputs(model, {'x': 45}),
             'compound1': fix_inputs(model, {0: 45})
