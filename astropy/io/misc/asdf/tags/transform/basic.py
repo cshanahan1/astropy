@@ -3,7 +3,7 @@
 
 from asdf import tagged
 
-from astropy.modeling import models, mappings
+from astropy.modeling import core, models, mappings
 from astropy.utils import minversion
 from astropy.modeling import functional_models
 from astropy.modeling.core import Model, CompoundModel
@@ -46,6 +46,13 @@ class TransformType(AstropyAsdfType):
                 param_and_model_constraints[constraint] = node[constraint]
         model._initialize_constraints(param_and_model_constraints)
 
+        if "input_units_equivalencies" in node:
+            # this still writes eqs. for compound, but operates on each sub model
+            if not isinstance(model, core.CompoundModel):
+                eqs = node['input_units_equivalencies']
+                eqs = yamlutil.tagged_tree_to_custom_tree(eqs, ctx)
+                model.input_units_equivalencies = eqs
+
         return model
 
     @classmethod
@@ -61,6 +68,7 @@ class TransformType(AstropyAsdfType):
 
     @classmethod
     def _to_tree_base_transform_members(cls, model, node, ctx):
+
         if getattr(model, '_user_inverse', None) is not None:
             node['inverse'] = model._user_inverse
 
@@ -85,6 +93,15 @@ class TransformType(AstropyAsdfType):
         # model / parameter constraints
         node['fixed'] = dict(model.fixed)
         node['bounds'] = dict(model.bounds)
+
+        if model.input_units is not None:
+            if model.input_units_equivalencies:
+                input_unit_equivalencies = {}
+                for in_unit in model.input_units:
+                    eq = model.input_units_equivalencies[in_unit]
+                    unit_equiv = yamlutil.custom_tree_to_tagged_tree(eq, ctx)
+                    input_unit_equivalencies[in_unit] = unit_equiv
+                node['input_units_equivalencies'] = input_unit_equivalencies
 
     @classmethod
     def to_tree_transform(cls, model, ctx):
