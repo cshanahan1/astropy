@@ -50,7 +50,6 @@ class TransformType(AstropyAsdfType):
             # this still writes eqs. for compound, but operates on each sub model
             if not isinstance(model, core.CompoundModel):
                 eqs = node['input_units_equivalencies']
-                eqs = yamlutil.tagged_tree_to_custom_tree(eqs, ctx)
                 model.input_units_equivalencies = eqs
 
         return model
@@ -99,7 +98,7 @@ class TransformType(AstropyAsdfType):
                 input_unit_equivalencies = {}
                 for in_unit in model.input_units:
                     eq = model.input_units_equivalencies[in_unit]
-                    unit_equiv = yamlutil.custom_tree_to_tagged_tree(eq, ctx)
+                    unit_equiv = eq
                     input_unit_equivalencies[in_unit] = unit_equiv
                 node['input_units_equivalencies'] = input_unit_equivalencies
 
@@ -156,6 +155,8 @@ class ConstantType(TransformType):
             return functional_models.Const1D(node['value'])
         elif node['dimensions'] == 2:
             return functional_models.Const2D(node['value'])
+        else:
+            raise TypeError('Only 1D and 2D constant models are supported.')
 
 
     @classmethod
