@@ -3125,10 +3125,26 @@ class CompoundModel(Model):
 
     @property
     def input_units_equivalencies(self):
+        # inputs_map = self.inputs_map()
+        # return {key: inputs_map[key][0].input_units_equivalencies[orig_key]
+        #         for key, (mod, orig_key) in inputs_map.items()
+        #         if inputs_map[key][0].input_units_equivalencies is not None}
+
         inputs_map = self.inputs_map()
-        return {key: inputs_map[key][0].input_units_equivalencies[orig_key]
-                for key, (mod, orig_key) in inputs_map.items()
-                if inputs_map[key][0].input_units_equivalencies is not None}
+        iues = {}
+        # each input unit that is key in inputs_map should be either set to the 
+        # specified equivalency, or None. If a user sets input_units_equivalencies
+        # and only supplies the equavilency for one of the input units, any others
+        # will be automatically set to None now.
+        inputs_map
+        for key, (mod, orig_key) in inputs_map.items():
+            if orig_key in inputs_map[key][0].input_units_equivalencies.keys():
+                if inputs_map[key][0].input_units_equivalencies is not None:
+                    iues[key] = inputs_map[key][0].input_units_equivalencies[orig_key]
+            else:
+                iues[key] = None
+
+        return iues
 
     @property
     def input_units_allow_dimensionless(self):
