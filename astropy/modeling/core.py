@@ -3136,7 +3136,6 @@ class CompoundModel(Model):
         # specified equivalency, or None. If a user sets input_units_equivalencies
         # and only supplies the equavilency for one of the input units, any others
         # will be automatically set to None now.
-        inputs_map
         for key, (mod, orig_key) in inputs_map.items():
             if orig_key in inputs_map[key][0].input_units_equivalencies.keys():
                 if inputs_map[key][0].input_units_equivalencies is not None:
