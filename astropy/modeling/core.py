@@ -3126,9 +3126,16 @@ class CompoundModel(Model):
     @property
     def input_units_equivalencies(self):
         inputs_map = self.inputs_map()
-        return {key: inputs_map[key][0].input_units_equivalencies[orig_key]
-                for key, (mod, orig_key) in inputs_map.items()
-                if inputs_map[key][0].input_units_equivalencies is not None}
+
+        in_unit_eqs = {}
+        for key, (mod, orig_key) in inputs_map.items():
+            if inputs_map[key][0].input_units_equivalencies is not None:
+                if orig_key in inputs_map[key][0].input_units_equivalencies.keys():
+                    in_unit_eqs[key] = inputs_map[key][0].input_units_equivalencies[orig_key]
+                else:
+                    in_unit_eqs[key] = None
+
+        return in_unit_eqs
 
     @property
     def input_units_allow_dimensionless(self):
