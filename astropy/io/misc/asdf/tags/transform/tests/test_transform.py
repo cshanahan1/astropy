@@ -128,7 +128,7 @@ def compound_models_with_input_eq():
     m2 = astmodels.Gaussian1D(5*u.s, 2*u.K, 3*u.K)
     m2.input_units_equivalencies = {'x': u.temperature()}
 
-    return  [m1|m2]
+    return  [m1|m2, m1&m2]
 
 
 test_models.extend(models_with_input_eq())

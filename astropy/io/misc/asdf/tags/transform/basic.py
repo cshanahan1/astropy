@@ -100,14 +100,15 @@ class TransformType(AstropyAsdfType):
             if bounds_nondefaults:
                 node['bounds'] = bounds_nondefaults
 
-        if model.input_units is not None:
-            if model.input_units_equivalencies:
-                input_unit_equivalencies = {}
-                for in_unit in model.input_units:
-                    eq = model.input_units_equivalencies[in_unit]
-                    unit_equiv = eq
-                    input_unit_equivalencies[in_unit] = unit_equiv
-                node['input_units_equivalencies'] = input_unit_equivalencies
+        if not isinstance(model, CompoundModel):
+            if model.input_units is not None:
+                if model.input_units_equivalencies:
+                    input_unit_equivalencies = {}
+                    for in_unit in model.input_units:
+                        eq = model.input_units_equivalencies[in_unit]
+                        unit_equiv = eq
+                        input_unit_equivalencies[in_unit] = unit_equiv
+                    node['input_units_equivalencies'] = input_unit_equivalencies
 
     @classmethod
     def to_tree_transform(cls, model, ctx):
